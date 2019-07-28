@@ -36,15 +36,15 @@
     <div id="myTabContent" class="tab-content">
       <div class="tab-pane fade show active" id="tabdaily">
           <br /><br />
-          <div id="echarts_win_daily" style="height:1000px;"></div>
+          <div id="echarts_win_daily" style="height:600px;"></div>
       </div>
       <div class="tab-pane fade " id="tab30" >
         <br /><br />
-        <div id="echarts_win_30min" style="height:1000px;"></div>
+        <div id="echarts_win_30min" style="height:600px;"></div>
       </div>
       <div class="tab-pane fade " id="tab5">
         <br /><br />
-        <div id="echarts_win_5min" style="height:1000px;"></div>
+        <div id="echarts_win_5min" style="height:600px;"></div>
       </div>
     </div>
 </div>
@@ -97,32 +97,22 @@ var option = {
         }
     },
     legend: {
-        data: ['K线','MA5','MA10','UPPER','DOWN','L_UPPER','L_DOWN','NODE','BEICHI','SBEICHI','PBEICHI','SPBEICHI','SEC_BUY'],
+        data: ['K线','MA5','MA10','UPPER','DOWN','L_UPPER','L_DOWN','NODE','BEICHI'],
     },
     grid: [{
         left: '4%',
         right: '2%',
-        height: '50%'
+        height: '65%'
     }, {
         left: '4%',
         right: '2%',
-        top: '60%',
-        height: '9%'
+        top: '77%',
+        height: '8%'
     }, {
         left: '4%',
         right: '2%',
-        top: '70%',
-        height: '10%'
-    }, {
-        left: '4%',
-        right: '2%',
-        top: '81%',
-        height: '10%'
-    }, {
-        left: '4%',
-        right: '2%',
-        top: '92%',
-        height: '4%'
+        top: '85%',
+        height: '12%'
     }],
     xAxis: [{
         type: 'category',
@@ -152,20 +142,6 @@ var option = {
         axisLabel: {
             show: false
         }
-    }, {
-        type: 'category',
-        gridIndex: 3,
-        data: [],
-        axisLabel: {
-            show: false
-        }
-    }, {
-        type: 'category',
-        gridIndex: 4,
-        data: [],
-        axisLabel: {
-            show: false
-        }
     }],
     yAxis: [{
         scale: true,
@@ -185,7 +161,7 @@ var option = {
             show: false
         },
         axisLabel: {
-            show: true
+            show: false
         }
     }, {
         gridIndex: 2,
@@ -200,37 +176,7 @@ var option = {
             show: false
         },
         axisLabel: {
-            show: true
-        }
-    }, {
-        gridIndex: 3,
-        //splitNumber: 4,
-        axisLine: {
-            onZero: false
-        },
-        axisTick: {
             show: false
-        },
-        splitLine: {
-            show: false
-        },
-        axisLabel: {
-            show: true
-        }
-    }, {
-        gridIndex: 4,
-        //splitNumber: 4,
-        axisLine: {
-            onZero: false
-        },
-        axisTick: {
-            show: false
-        },
-        splitLine: {
-            show: false
-        },
-        axisLabel: {
-            show: true
         }
     }],
     dataZoom: [{
@@ -248,18 +194,6 @@ var option = {
     }, {
         show: false,
         xAxisIndex: [0, 2],
-        type: 'slider',
-        start: 50,
-        end: 100
-    }, {
-        show: false,
-        xAxisIndex: [0, 3],
-        type: 'slider',
-        start: 50,
-        end: 100
-    }, {
-        show: false,
-        xAxisIndex: [0, 4],
         type: 'slider',
         start: 50,
         end: 100
@@ -350,6 +284,17 @@ var option = {
                         }
                     }
     },{
+                name: 'BEICHI',
+                type: 'scatter',
+                data: [],
+                symbol:'roundRect',
+                symbolSize:10,
+                itemStyle: {
+                    normal: {opacity: 0.8,
+                        color: '#ff4ddb'
+                        }
+                    }
+    },{
         name: 'Volumn',
         type: 'bar',
         xAxisIndex: 1,
@@ -394,114 +339,6 @@ var option = {
             normal: {color: '#EE7600'}
         }
 
-    }, {
-        name: 'MACD2',
-        type: 'bar',
-        xAxisIndex: 3,
-        yAxisIndex: 3,
-        data: [],
-        itemStyle: {
-            normal: {
-                color: function(params) {
-                    var colorList;
-                    if (params.data >= 0) {
-                        colorList = '#ef232a';
-                    } else {
-                        colorList = '#14b143';
-                    }
-                    return colorList;
-                },
-            }
-        }
-    }, {
-        name: 'DIF2',
-        type: 'line',
-        xAxisIndex: 3,
-        yAxisIndex: 3,
-        data: [],
-        itemStyle: {
-            normal: {color: '#000000'}
-        }
-    }, {
-        name: 'DEA2',
-        type: 'line',
-        xAxisIndex: 3,
-        yAxisIndex: 3,
-        data: [],
-        itemStyle: {
-            normal: {color: '#EE7600'}
-        }
-
-    },{
-                name: 'TYPE',
-                type: 'line',
-                xAxisIndex: 4,
-        yAxisIndex: 4,
-                data: [],
-                smooth: false,
-                lineStyle: {
-                    normal: {opacity: 0.8, color:'#EE9A00'}
-                }
-    },{
-                name: 'BEICHI',
-                type: 'scatter',
-                xAxisIndex: 4,
-        yAxisIndex: 4,
-                data: [],
-                symbolSize:6,
-                itemStyle: {
-                    normal: {opacity: 0.8,
-                        color: '#3333ff'
-                        }
-                    }
-    },{
-                name: 'SBEICHI',
-                type: 'scatter',
-                xAxisIndex: 4,
-        yAxisIndex: 4,
-                data: [],
-                symbolSize:6,
-                itemStyle: {
-                    normal: {opacity: 0.8,
-                        color: '#330260'
-                        }
-                    }
-    },{
-                name: 'PBEICHI',
-                type: 'scatter',
-                xAxisIndex: 4,
-        yAxisIndex: 4,
-                data: [],
-                symbolSize:6,
-                itemStyle: {
-                    normal: {opacity: 0.8,
-                        color: '#FF7F24'
-                        }
-                    }
-    },{
-                name: 'SPBEICHI',
-                type: 'scatter',
-                xAxisIndex: 4,
-        yAxisIndex: 4,
-                data: [],
-                symbolSize:6,
-                itemStyle: {
-                    normal: {opacity: 0.8,
-                        color: '#006633'
-                        }
-                    }
-    },{
-                name: 'SEC_BUY',
-                type: 'scatter',
-                xAxisIndex: 4,
-        yAxisIndex: 4,
-                data: [],
-                symbolSize:6,
-                itemStyle: {
-                    normal: {opacity: 0.8,
-                        color: '#9900cc'
-                        }
-                    }
     }]
 };
 
@@ -621,12 +458,6 @@ function setChartData(v_data, cur_index) {
                 },
                 {
                     data: open_obj.keys
-                },
-                {
-                    data: open_obj.keys
-                },
-                {
-                    data: open_obj.keys
                 }],
             dataZoom: [{
 		        xAxisIndex: [0, 0],
@@ -639,14 +470,6 @@ function setChartData(v_data, cur_index) {
 			    {
 			        xAxisIndex: [0, 2],
 			        start: init_start
-			    },
-				  {
-				      xAxisIndex: [0, 3],
-				      start: init_start
-			    },
-				  {
-				      xAxisIndex: [0, 4],
-				      start: init_start
 			    }],
             series: [
                 // 根据名字对应到相应的系列
@@ -683,6 +506,10 @@ function setChartData(v_data, cur_index) {
                     data: node_obj.values,
                 },
                 {
+                    name: 'BEICHI',
+                    data: beichi_obj.values,
+                },
+                {
                     name: 'Volumn',
                     data: volume_obj.values,
                     itemStyle: {
@@ -710,42 +537,6 @@ function setChartData(v_data, cur_index) {
                 {
                     name: 'DEA',
                     data: dea_obj.values,
-                },
-                {
-                    name: 'MACD2',
-                    data: macd_obj2.values,
-                },
-                {
-                    name: 'DIF2',
-                    data: dif_obj2.values,
-                },
-                {
-                    name: 'DEA2',
-                    data: dea_obj2.values,
-                },
-                {
-                    name: 'TYPE',
-                    data: base_type_obj.values,
-                },
-                {
-                    name: 'BEICHI',
-                    data: beichi_obj.values,
-                },
-                {
-                    name: 'SBEICHI',
-                    data: sbeichi_obj.values,
-                },
-                {
-                    name: 'PBEICHI',
-                    data: pbeichi_obj.values,
-                },
-                {
-                    name: 'SPBEICHI',
-                    data: spbeichi_obj.values,
-                },
-                {
-                    name: 'SEC_BUY',
-                    data: sec_buy_obj.values,
                 }
                 ],
         };
