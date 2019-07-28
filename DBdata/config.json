@@ -1,0 +1,10 @@
+{
+	"MONGO_HOST": "localhost",
+	"MONGO_PORT": 27017,
+	"START":"2018-3-25",
+	"END":"2019-3-25",
+	"FREQB":["5MIN","30MIN","D"],
+	"FREQ":["30", "d"],
+	"SYMBOLS1": ["000001"],
+	"SYMBOLS": ["sh.600115"]
+}

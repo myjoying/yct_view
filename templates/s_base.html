@@ -1,0 +1,36 @@
+{% extends 'bootstrap/base.html' %}
+
+
+{% block metas %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="金融智能分析平台">
+    <meta name="myjoying" content="金融智能分析平台">
+{% endblock %}
+{% block styles %}
+    <link href="../static/css/bootstrap.css" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet">
+{% endblock %}
+
+
+{%- block body %}
+
+{%- block content %}
+
+{% block page_content %}{% endblock %}
+
+{% endblock -%}
+
+{% block footer %}
+    <div class="mastfoot">
+    <div class="inner">
+        <!--a href='http://www.miitbeian.gov.cn/'></a-->
+    </div>
+    </div>
+{% endblock %}
+
+{%- block scripts %}
+    <script src="../static/js/bootstrap.min.js"></script>
+{% endblock -%}
+{% endblock %}

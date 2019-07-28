@@ -1,0 +1,842 @@
+{% extends 's_base.html' %}
+{% include 'header.html' %}
+
+{% block title %}股市-金融智能分析平台{% endblock %}
+
+{% block head %}
+    {{super()}}
+    <script src="../static/js/jquery-3.4.1.js"></script>
+	<script src="../static/js/echarts.js"></script>
+{% endblock %}
+
+{% block content %}
+<br />
+<div class="col-md-12">
+    <div class="form-inline my-2 my-lg-0">
+      <input class="form-control mr-sm-2" id="code_in" type="text" placeholder="代码:sh.000001">
+      <input class="form-control mr-sm-1" id="start_time" type="text" placeholder="开始时间:2018-01-01">
+      <input class="form-control mr-sm-1" id="end_time" type="text" placeholder="结束时间:2019-01-01">
+      <button class="btn btn-primary " id="load_btn" >加载数据</button>
+    </div>
+</div>
+<br />
+<br />
+<div class="col-md-12">
+    <ul class="nav nav-tabs">
+      <li class="nav-item"  id="tab_freq_d">
+        <a class="nav-link active" data-toggle="tab" href="#tabdaily">日线</a>
+      </li>
+      <li class="nav-item" id="tab_freq_30">
+        <a class="nav-link " data-toggle="tab" href="#tab30">30分钟</a>
+      </li>
+      <li class="nav-item" id="tab_freq_5">
+        <a class="nav-link " data-toggle="tab" href="#tab5">5分钟</a>
+      </li>
+    </ul>
+    <div id="myTabContent" class="tab-content">
+      <div class="tab-pane fade show active" id="tabdaily">
+          <br /><br />
+          <div id="echarts_win_daily" style="height:1000px;"></div>
+      </div>
+      <div class="tab-pane fade " id="tab30" >
+        <br /><br />
+        <div id="echarts_win_30min" style="height:1000px;"></div>
+      </div>
+      <div class="tab-pane fade " id="tab5">
+        <br /><br />
+        <div id="echarts_win_5min" style="height:1000px;"></div>
+      </div>
+    </div>
+</div>
+<br />
+<br />
+
+
+<script type="text/javascript">
+
+//tab 操作
+var cur_tab = 0;
+
+
+//获取JSON对象的值
+function getKeyValues(json_obj){
+    var keys = [];
+    var values = [];
+    for (key in json_obj){
+        keys.push(key)
+        values.push(json_obj[key])
+    }
+    return {
+        keys: keys,
+        values: values
+    };
+}
+
+//组成candlestick数据
+function getCandleStickData(open, close, low, high){
+    var result = new Array();
+    for(var i=0; i<open.length; i++){
+        result[i] = [open[i],close[i],low[i], high[i]];
+    }
+
+    return result;
+}
+
+var option = {
+    title: {
+        text: 'K线图',
+        subtext: '',
+        x:'left',
+        y:'top',
+        textAlign:'left'
+    },
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'line'
+        }
+    },
+    legend: {
+        data: ['K线','MA5','MA10','UPPER','DOWN','L_UPPER','L_DOWN','NODE','BEICHI','SBEICHI','PBEICHI','SPBEICHI','SEC_BUY'],
+    },
+    grid: [{
+        left: '4%',
+        right: '2%',
+        height: '50%'
+    }, {
+        left: '4%',
+        right: '2%',
+        top: '60%',
+        height: '9%'
+    }, {
+        left: '4%',
+        right: '2%',
+        top: '70%',
+        height: '10%'
+    }, {
+        left: '4%',
+        right: '2%',
+        top: '81%',
+        height: '10%'
+    }, {
+        left: '4%',
+        right: '2%',
+        top: '92%',
+        height: '4%'
+    }],
+    xAxis: [{
+        type: 'category',
+        data: [],
+        scale: true,
+        boundaryGap: false,
+        axisLine: {
+            onZero: false
+        },
+        splitLine: {
+            show: false
+        },
+        splitNumber: 20,
+        min: 'dataMin',
+        max: 'dataMax'
+    }, {
+        type: 'category',
+        gridIndex: 1,
+        data: [],
+        axisLabel: {
+            show: false
+        }
+    }, {
+        type: 'category',
+        gridIndex: 2,
+        data: [],
+        axisLabel: {
+            show: false
+        }
+    }, {
+        type: 'category',
+        gridIndex: 3,
+        data: [],
+        axisLabel: {
+            show: false
+        }
+    }, {
+        type: 'category',
+        gridIndex: 4,
+        data: [],
+        axisLabel: {
+            show: false
+        }
+    }],
+    yAxis: [{
+        scale: true,
+        splitArea: {
+            show: false
+        }
+    }, {
+        gridIndex: 1,
+        //splitNumber: 3,
+        axisLine: {
+            onZero: false
+        },
+        axisTick: {
+            show: false
+        },
+        splitLine: {
+            show: false
+        },
+        axisLabel: {
+            show: true
+        }
+    }, {
+        gridIndex: 2,
+        //splitNumber: 4,
+        axisLine: {
+            onZero: false
+        },
+        axisTick: {
+            show: false
+        },
+        splitLine: {
+            show: false
+        },
+        axisLabel: {
+            show: true
+        }
+    }, {
+        gridIndex: 3,
+        //splitNumber: 4,
+        axisLine: {
+            onZero: false
+        },
+        axisTick: {
+            show: false
+        },
+        splitLine: {
+            show: false
+        },
+        axisLabel: {
+            show: true
+        }
+    }, {
+        gridIndex: 4,
+        //splitNumber: 4,
+        axisLine: {
+            onZero: false
+        },
+        axisTick: {
+            show: false
+        },
+        splitLine: {
+            show: false
+        },
+        axisLabel: {
+            show: true
+        }
+    }],
+    dataZoom: [{
+        type: 'inside',
+        xAxisIndex: [0, 0],
+        start: 50,
+        end: 100
+    }, {
+        show: true,
+        xAxisIndex: [0, 1],
+        type: 'slider',
+        top: '97%',
+        start: 50,
+        end: 100
+    }, {
+        show: false,
+        xAxisIndex: [0, 2],
+        type: 'slider',
+        start: 50,
+        end: 100
+    }, {
+        show: false,
+        xAxisIndex: [0, 3],
+        type: 'slider',
+        start: 50,
+        end: 100
+    }, {
+        show: false,
+        xAxisIndex: [0, 4],
+        type: 'slider',
+        start: 50,
+        end: 100
+    }],
+    series: [{
+        name: 'K线',
+        type: 'candlestick',
+        data: [],
+        itemStyle: {
+            normal: {
+                color: '#ef232a',
+                color0: '#14b143',
+                borderColor: '#ef232a',
+                borderColor0: '#14b143'
+            }
+        },
+        markPoint: {
+            data: [{
+                    type: 'max',
+                    name: '最大值'
+                },
+                {
+                    type: 'min',
+                    name: '最小值'
+                }
+            ]
+        }
+    }, {
+        name: 'MA5',
+        type: 'line',
+        data: [],
+        smooth: true,
+        lineStyle: {
+            normal: {
+                opacity: 0.5
+            }
+        }
+    }, {
+        name: 'MA10',
+        type: 'line',
+        data: [],
+        smooth: true,
+        lineStyle: {
+            normal: {
+                opacity: 0.5
+            }
+        }
+    }, {
+                name: 'UPPER',
+                type: 'line',
+                data: [],
+                smooth: false,
+                lineStyle: {
+                    normal: {opacity: 0.8, color:'#2B2B2B'}
+                }
+    },{
+                name: 'DOWN',
+                type: 'line',
+                data: [],
+                smooth: false,
+                lineStyle: {
+                    normal: {opacity: 0.8, color:'#2B2B2B'}
+                }
+    }, {
+                name: 'L_UPPER',
+                type: 'line',
+                data: [],
+                smooth: false,
+                lineStyle: {
+                    normal: {opacity: 0.8, color:'#CD0000'}
+                }
+    }, {
+                name: 'L_DOWN',
+                type: 'line',
+                data: [],
+                smooth: false,
+                lineStyle: {
+                    normal: {opacity: 0.8, color:'#CD0000'}
+                }
+    },{
+                name: 'NODE',
+                type: 'scatter',
+                data: [],
+                symbolSize:6,
+                itemStyle: {
+                    normal: {opacity: 0.8,
+                        color: '#3333ff'
+                        }
+                    }
+    },{
+        name: 'Volumn',
+        type: 'bar',
+        xAxisIndex: 1,
+        yAxisIndex: 1,
+        data: [],
+
+    }, {
+        name: 'MACD',
+        type: 'bar',
+        xAxisIndex: 2,
+        yAxisIndex: 2,
+        data: [],
+        itemStyle: {
+            normal: {
+                color: function(params) {
+                    var colorList;
+                    if (params.data >= 0) {
+                        colorList = '#ef232a';
+                    } else {
+                        colorList = '#14b143';
+                    }
+                    return colorList;
+                },
+            }
+        }
+    }, {
+        name: 'DIF',
+        type: 'line',
+        xAxisIndex: 2,
+        yAxisIndex: 2,
+        data: [],
+        itemStyle: {
+            normal: {color: '#000000'}
+        }
+    }, {
+        name: 'DEA',
+        type: 'line',
+        xAxisIndex: 2,
+        yAxisIndex: 2,
+        data: [],
+        itemStyle: {
+            normal: {color: '#EE7600'}
+        }
+
+    }, {
+        name: 'MACD2',
+        type: 'bar',
+        xAxisIndex: 3,
+        yAxisIndex: 3,
+        data: [],
+        itemStyle: {
+            normal: {
+                color: function(params) {
+                    var colorList;
+                    if (params.data >= 0) {
+                        colorList = '#ef232a';
+                    } else {
+                        colorList = '#14b143';
+                    }
+                    return colorList;
+                },
+            }
+        }
+    }, {
+        name: 'DIF2',
+        type: 'line',
+        xAxisIndex: 3,
+        yAxisIndex: 3,
+        data: [],
+        itemStyle: {
+            normal: {color: '#000000'}
+        }
+    }, {
+        name: 'DEA2',
+        type: 'line',
+        xAxisIndex: 3,
+        yAxisIndex: 3,
+        data: [],
+        itemStyle: {
+            normal: {color: '#EE7600'}
+        }
+
+    },{
+                name: 'TYPE',
+                type: 'line',
+                xAxisIndex: 4,
+        yAxisIndex: 4,
+                data: [],
+                smooth: false,
+                lineStyle: {
+                    normal: {opacity: 0.8, color:'#EE9A00'}
+                }
+    },{
+                name: 'BEICHI',
+                type: 'scatter',
+                xAxisIndex: 4,
+        yAxisIndex: 4,
+                data: [],
+                symbolSize:6,
+                itemStyle: {
+                    normal: {opacity: 0.8,
+                        color: '#3333ff'
+                        }
+                    }
+    },{
+                name: 'SBEICHI',
+                type: 'scatter',
+                xAxisIndex: 4,
+        yAxisIndex: 4,
+                data: [],
+                symbolSize:6,
+                itemStyle: {
+                    normal: {opacity: 0.8,
+                        color: '#330260'
+                        }
+                    }
+    },{
+                name: 'PBEICHI',
+                type: 'scatter',
+                xAxisIndex: 4,
+        yAxisIndex: 4,
+                data: [],
+                symbolSize:6,
+                itemStyle: {
+                    normal: {opacity: 0.8,
+                        color: '#FF7F24'
+                        }
+                    }
+    },{
+                name: 'SPBEICHI',
+                type: 'scatter',
+                xAxisIndex: 4,
+        yAxisIndex: 4,
+                data: [],
+                symbolSize:6,
+                itemStyle: {
+                    normal: {opacity: 0.8,
+                        color: '#006633'
+                        }
+                    }
+    },{
+                name: 'SEC_BUY',
+                type: 'scatter',
+                xAxisIndex: 4,
+        yAxisIndex: 4,
+                data: [],
+                symbolSize:6,
+                itemStyle: {
+                    normal: {opacity: 0.8,
+                        color: '#9900cc'
+                        }
+                    }
+    }]
+};
+
+var option_30 = {};
+var option_5 = {};
+
+var myChart_d = null;
+var myChart_30 = null;
+var myChart_5 = null;
+
+$(document).ready(function () {
+
+    myChart_d = echarts.init(document.getElementById("echarts_win_daily"));
+    if (option && typeof option === "object") {
+        myChart_d.setOption(option, true);
+    }
+
+    $("#tab5").addClass("active");
+    myChart_5 = echarts.init(document.getElementById("echarts_win_5min"));
+    $.extend(true, option_5, option);
+    if (option_5 && typeof option_5 === "object") {
+        myChart_5.setOption(option_5, true);
+    }
+    $("#tab5").removeClass("active");
+
+    $("#tab30").addClass("active");
+    myChart_30 = echarts.init(document.getElementById("echarts_win_30min"));
+     $.extend(true, option_30, option);
+    if (option_30 && typeof option_30 === "object") {
+        myChart_30.setOption(option_30, true);
+    }
+    $("#tab30").removeClass("active");
+
+
+
+});
+
+var data_d = null;
+var data_30 = null;
+var data_5 = null;
+
+function isEmptyObject(obj){
+    for (var n in obj) {
+        return false
+    }
+    return true;
+}
+
+function setChartData(v_data, cur_index) {
+    if(v_data && !isEmptyObject(v_data)){
+        var open_obj = getKeyValues(v_data['open']);
+        var close_obj = getKeyValues(v_data.close);
+        var high_obj = getKeyValues(v_data.high);
+        var low_obj = getKeyValues(v_data.low);
+        //var upper_obj = getKeyValues(v_data.upper);
+        //var down_obj = getKeyValues(v_data.down);
+        //var percent_obj = getKeyValues(v_data.percent);
+        var volume_obj = getKeyValues(v_data.volume);
+        var candlestickData = getCandleStickData(open_obj.values, close_obj.values, low_obj.values,high_obj.values);
+        //var state_obj = getKeyValues(v_data.state);
+        var node_obj = getKeyValues(v_data.node);
+        var base_up_obj = getKeyValues(v_data.base_up);
+        var base_down_obj = getKeyValues(v_data.base_down);
+        var base_type_obj = getKeyValues(v_data.base_type);
+        var l_base_up_obj = getKeyValues(v_data.l_base_up);
+        var l_base_down_obj = getKeyValues(v_data.l_base_down);
+        var ma5_obj = getKeyValues(v_data.SMA5);
+        var ma10_obj = getKeyValues(v_data.SMA10);
+        var macd_obj = getKeyValues(v_data.MACD);
+        var dea_obj = getKeyValues(v_data.DEA);
+        var dif_obj = getKeyValues(v_data.DIF);
+        var macd_obj2 = getKeyValues(v_data.MACD2);
+        var dea_obj2 = getKeyValues(v_data.DEA2);
+        var dif_obj2 = getKeyValues(v_data.DIF2);
+        var beichi_obj = getKeyValues(v_data.beichi);
+        var sbeichi_obj = getKeyValues(v_data.sharebeichi);
+        var pbeichi_obj = getKeyValues(v_data.panzhbeichi);
+        var spbeichi_obj = getKeyValues(v_data.sharepanzhbeichi);
+        var sec_buy_obj = getKeyValues(v_data.sec_buy);
+
+        //设置初始缩放比例
+        var data_length = open_obj.values.length;
+        var init_start = 50;
+        if(data_length > 200)
+        {
+            init_start = 100*(data_length-200)/data_length;
+        }
+        else
+        {
+                init_start = 0
+        }
+
+        var l_option = {};
+        var substr = 'TEST';
+        if(cur_index === 0){
+            $.extend(true, l_option ,option);
+            substr = '日线';
+        }
+        else if(cur_index ===1){
+             $.extend(true, l_option ,option_30);
+             substr = '30分钟线';
+        }
+        else{
+             $.extend(true, l_option ,option_5);
+             substr = '5分钟线';
+        }
+
+        l_option = {
+            title: {
+	            subtext: substr,
+    		},
+            xAxis: [{
+                    data: open_obj.keys
+                },
+                {
+                    data: open_obj.keys
+                },
+                {
+                    data: open_obj.keys
+                },
+                {
+                    data: open_obj.keys
+                },
+                {
+                    data: open_obj.keys
+                }],
+            dataZoom: [{
+		        xAxisIndex: [0, 0],
+		        start: init_start
+			    },
+			    {
+			        xAxisIndex: [0, 1],
+			        start: init_start
+			    },
+			    {
+			        xAxisIndex: [0, 2],
+			        start: init_start
+			    },
+				  {
+				      xAxisIndex: [0, 3],
+				      start: init_start
+			    },
+				  {
+				      xAxisIndex: [0, 4],
+				      start: init_start
+			    }],
+            series: [
+                // 根据名字对应到相应的系列
+                {
+                    name: 'K线',
+                    data: candlestickData,
+                },
+                {
+                    name: 'MA5',
+                    data: ma5_obj.values,
+                },
+                {
+                    name: 'MA10',
+                    data: ma10_obj.values,
+                },
+                {
+                    name: 'UPPER',
+                    data: base_up_obj.values,
+                },
+                {
+                    name: 'DOWN',
+                    data: base_down_obj.values,
+                },
+                {
+                    name: 'L_UPPER',
+                    data: l_base_up_obj.values,
+                },
+                {
+                    name: 'L_DOWN',
+                    data: l_base_down_obj.values,
+                },
+                {
+                    name: 'NODE',
+                    data: node_obj.values,
+                },
+                {
+                    name: 'Volumn',
+                    data: volume_obj.values,
+                    itemStyle: {
+	                    normal: {
+                            color: function(params) {
+                                var colorList;
+                                if (open_obj.values[params.dataIndex] < close_obj.values[params.dataIndex]) {
+                                    colorList = '#ef232a';
+                                } else {
+                                    colorList = '#14b143';
+                                }
+                                return colorList;
+                            },
+	                    }
+        		    }
+                },
+                {
+                    name: 'MACD',
+                    data: macd_obj.values,
+                },
+                {
+                    name: 'DIF',
+                    data: dif_obj.values,
+                },
+                {
+                    name: 'DEA',
+                    data: dea_obj.values,
+                },
+                {
+                    name: 'MACD2',
+                    data: macd_obj2.values,
+                },
+                {
+                    name: 'DIF2',
+                    data: dif_obj2.values,
+                },
+                {
+                    name: 'DEA2',
+                    data: dea_obj2.values,
+                },
+                {
+                    name: 'TYPE',
+                    data: base_type_obj.values,
+                },
+                {
+                    name: 'BEICHI',
+                    data: beichi_obj.values,
+                },
+                {
+                    name: 'SBEICHI',
+                    data: sbeichi_obj.values,
+                },
+                {
+                    name: 'PBEICHI',
+                    data: pbeichi_obj.values,
+                },
+                {
+                    name: 'SPBEICHI',
+                    data: spbeichi_obj.values,
+                },
+                {
+                    name: 'SEC_BUY',
+                    data: sec_buy_obj.values,
+                }
+                ],
+        };
+
+        if(cur_index === 0){
+            $.extend(true ,option , l_option);
+        }
+        else if(cur_index ===1){
+             $.extend(true ,option_30, l_option);
+        }
+        else{
+             $.extend(true ,option_5, l_option);
+        }
+    }
+}
+
+$("#load_btn").click(function() {
+
+    var code = $("#code_in").val();
+    var start_time = $("#start_time").val();
+    var end_time = $("#end_time").val();
+
+    if(code === ''){
+        code = 'sh.000001';
+    }
+    if(start_time === ''){
+        start_time = '2018-01-01';
+    }
+    if(end_time === ''){
+        end_time = '2019-01-01';
+    }
+
+    //发送三次请求
+    var reqdata = {'code':code, 'start_time': start_time, 'end_time':end_time, 'freq':'d'};
+
+    if(cur_tab === 0){
+        myChart_d.showLoading();
+        $.getJSON("/stock_item/", reqdata, function(data) {
+            data_d = jQuery.parseJSON(data);
+            setChartData(data_d, cur_tab);
+            myChart_d.hideLoading();
+            myChart_d.setOption(option, true);
+
+        });
+    }
+    else if(cur_tab === 1 ){
+        myChart_30.showLoading();
+        reqdata.freq = '30';
+        $.getJSON("/stock_item/", reqdata, function(data) {
+            if (option_30 && isEmptyObject(option_30)) {
+                 $.extend(true, option_30, option);
+            }
+            data_30 = jQuery.parseJSON(data);
+            setChartData(data_30, cur_tab);
+            myChart_30.hideLoading();
+            myChart_30.setOption(option_30, true);
+
+        });
+    }
+    else{
+        myChart_5.showLoading();
+        reqdata.freq = '5';
+        $.getJSON("/stock_item/", reqdata, function(data) {
+            if (option_5 && isEmptyObject(option_5)) {
+                 $.extend(true, option_5, option);
+            }
+            data_5 = jQuery.parseJSON(data);
+            setChartData(data_5, cur_tab);
+            myChart_5.hideLoading();
+            myChart_5.setOption(option_5, true);
+
+        });
+    }
+
+});
+
+$("#tab_freq_d").click(function() {
+    cur_tab = 0;
+});
+
+$("#tab_freq_30").click(function() {
+    cur_tab = 1;
+});
+
+$("#tab_freq_5").click(function() {
+    cur_tab = 2;
+});
+
+
+
+
+</script>
+
+{% endblock %}
